@@ -1,8 +1,8 @@
 using eShop.WebApi.Database;
 using eShop.WebApi.Domain;
+using eShop.WebApi.Infrastructure.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Add services to the container.
 builder.Services.AddDatabase(builder.Configuration);
@@ -13,6 +13,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+// Add OpenTelemetry services.
+builder.AddOpenTelemetry();
+
 
 var app = builder.Build();
 

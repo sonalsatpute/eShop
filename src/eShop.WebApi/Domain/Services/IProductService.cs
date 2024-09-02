@@ -11,14 +11,17 @@ public interface IProductService
 public class ProductService : IProductService
 {
     readonly IProductRepository _productRepository;
+    private readonly ILogger<ProductService> _logger;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
     {
         _productRepository = productRepository;
+        _logger = logger;
     }
 
     public Task<Product> GetProductAsync(Guid productId)
     {
+        _logger.LogInformation("Getting product with ID {ProductId}", productId);
         return _productRepository.GetProductAsync(productId);
     }
 }

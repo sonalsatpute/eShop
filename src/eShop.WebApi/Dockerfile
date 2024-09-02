@@ -19,4 +19,5 @@ RUN dotnet publish "eShop.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=build ./eShop.db ./eShop.db
 ENTRYPOINT ["dotnet", "eShop.WebApi.dll"]

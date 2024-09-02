@@ -1,0 +1,89 @@
+﻿services:
+#  eShop.WebApi:
+#    image: eshop.webapi
+#    restart: always
+#    build:
+#      context: .
+#      dockerfile: src/eShop.WebApi/Dockerfile
+#    environment:
+#        ConnectionStrings__eShopDb: Host=eShop.db;Port=5432;Database=eShop;Username=postgres;Password=postgres
+#        ConnectionStrings__eShopCache: eShop.cache:6379
+#        ConnectionStrings__RabbitMq: amqp://guest:guest@rabbitmq:5672/
+#        otlp_collector_endpoint: http://otel-collector:4317
+#    ports:  
+#      - "8080:80"
+#    depends_on:
+#      - eShop.db
+#      - eShop.cache
+#      - rabbitmq
+#
+#  eShop.db:
+#    image: postgres
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: ClientsDb
+#    ports:  
+#      - "5432:5432"
+#
+#  eShop.cache:
+#    image: redis
+#    ports:
+#      - "6379:6379"      
+#
+#  rabbitmq:
+#    image: rabbitmq:3-management
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+
+        
+  jaeger:
+    image: jaegertracing/all-in-one:1.58.0
+    ports:
+      - "16686:16686" # Jaeger Web UI
+        
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+        
+        
+  grafana:
+    image: grafana/grafana:10.4.4
+    volumes:
+      - ./grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    ports:
+      - "3000:3000"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.103.0
+    volumes:
+      - ./otel-collector/otel-collector-config.yml:/etc/otel/config.yaml
+      - ./log:/log/otel
+    command: --config /etc/otel/config.yaml
+    environment:
+      JAEGER_ENDPOINT: "jaeger:4317"
+    ports:
+      - "8889:8889"   # Prometheus metrics exporter (scrape endpoint)
+      - "13133:13133" # health_check extension
+      - "55679:55679" # ZPages extension
+      - "4317:4317"   # OTLP Receiver
+    depends_on:
+      - jaeger
+      - prometheus
+      - loki
+
+        
+  loki:
+    image: grafana/loki:2.7.1
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml

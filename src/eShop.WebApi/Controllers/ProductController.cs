@@ -23,6 +23,6 @@ public class ProductController : ControllerBase
         Product? product = await _productService.GetProductAsync(productId);
         if (product == null) return NotFound();
 
-        return product;
+        return Ok(product);
     }
 }

@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "HotelBooking.WebApi": {
+    "eShop.WebApi": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
