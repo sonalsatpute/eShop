@@ -485,3 +485,6 @@ FodyWeavers.xsd
 
 .idea
 .idea/**/**
+
+# Database
+eShop.db

@@ -19,7 +19,7 @@ public class ProductRepository : IProductRepository
     
     public async Task<Product> GetProductAsync(Guid productId)
     {
-        Product product = (await _dbContext.Bookings.FindAsync(productId))!;
+        Product product = (await _dbContext.Products.FindAsync(productId))!;
         return product;
     }
 }

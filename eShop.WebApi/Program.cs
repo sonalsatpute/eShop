@@ -1,6 +1,13 @@
+using eShop.WebApi.Database;
+using eShop.WebApi.Domain;
+
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
+builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddDomainServices();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

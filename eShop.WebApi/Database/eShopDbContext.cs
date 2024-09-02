@@ -9,6 +9,12 @@ public class eShopDbContext : DbContext
         : base(options)
     {
     }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Product>()
+            .HasKey(e => e.Id);
+    }
 
-    public DbSet<Product> Bookings { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = null!;
 }
