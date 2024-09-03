@@ -1,18 +1,19 @@
 ﻿services:
-#  eShop.WebApi:
-#    image: eshop.webapi
-#    restart: always
-#    build:
-#      context: .
-#      dockerfile: src/eShop.WebApi/Dockerfile
-#    environment:
-#        ConnectionStrings__eShopDb: Host=eShop.db;Port=5432;Database=eShop;Username=postgres;Password=postgres
-#        ConnectionStrings__eShopCache: eShop.cache:6379
-#        ConnectionStrings__RabbitMq: amqp://guest:guest@rabbitmq:5672/
-#        otlp_collector_endpoint: http://otel-collector:4317
-#    ports:  
-#      - "8080:80"
-#    depends_on:
+  eShop.WebApi:
+    image: eshop.webapi
+    restart: always
+    build:
+      context: .
+      dockerfile: eShop.WebApi/Dockerfile
+    environment:
+        ConnectionStrings__eShopDb: Host=eShop.db;Port=5432;Database=eShop;Username=postgres;Password=postgres
+        ConnectionStrings__eShopCache: eShop.cache:6379
+        ConnectionStrings__RabbitMq: amqp://guest:guest@rabbitmq:5672/
+        otlp_collector_endpoint: http://otel-collector:4317
+    ports:  
+      - "8080:80"
+    depends_on:
+      - otel-collector
 #      - eShop.db
 #      - eShop.cache
 #      - rabbitmq
@@ -62,11 +63,18 @@
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
     ports:
       - "3000:3000"
-
+  
+  loki:
+    image: grafana/loki:2.7.1
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    
+    
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.103.0
     volumes:
-      - ./otel-collector/otel-collector-config.yml:/etc/otel/config.yaml
+      - ./otel-collector-config.yml:/etc/otel/config.yaml
       - ./log:/log/otel
     command: --config /etc/otel/config.yaml
     environment:
@@ -80,10 +88,3 @@
       - jaeger
       - prometheus
       - loki
-
-        
-  loki:
-    image: grafana/loki:2.7.1
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml

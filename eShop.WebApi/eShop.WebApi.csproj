@@ -29,4 +29,10 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update=".dockerignore">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

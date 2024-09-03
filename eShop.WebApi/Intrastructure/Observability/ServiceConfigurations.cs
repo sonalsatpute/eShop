@@ -27,7 +27,7 @@ public static class ServiceConfigurations
                 tracing
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddConsoleExporter() // Add Console exporter for development
+                    // .AddConsoleExporter() // Add Console exporter for development
                     .AddOtlpExporter(options =>
                         options.Endpoint = collector_endpoint)
             )
@@ -39,14 +39,14 @@ public static class ServiceConfigurations
                     .AddMeter("Microsoft.AspNetCore.Hosting")
                     .AddMeter("Microsoft.AspNetCore.Server.Kestrel") //Not sure if this will work with .NET 6
                     .AddMeter(ApplicationDiagnostics.Meter.Name)
-                    .AddConsoleExporter() // Add Console exporter for development
+                    // .AddConsoleExporter() // Add Console exporter for development
                     .AddOtlpExporter(options =>
                         options.Endpoint = collector_endpoint)
             )
             .WithLogging(
                 logging=>
                     logging
-                        .AddConsoleExporter() // Add Console exporter for development
+                        // .AddConsoleExporter() // Add Console exporter for development
                         .AddOtlpExporter(options => 
                             options.Endpoint = collector_endpoint)
             );
