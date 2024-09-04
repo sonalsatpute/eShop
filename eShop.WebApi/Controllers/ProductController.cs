@@ -25,4 +25,22 @@ public class ProductController : ControllerBase
 
         return Ok(product);
     }
+    
+    [HttpPost(Name = nameof(CreateProduct))]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(201)]
+    public async Task<ActionResult<Product>> CreateProduct(Product product)
+    {
+        await _productService.CreateProductAsync(product);
+        return CreatedAtRoute(nameof(GetProductById), new {productId = product.Id}, product);
+    }
+    
+    [HttpPut("{productId}", Name = nameof(UpdateProduct))]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(201)]
+    public async Task<ActionResult<Product>> UpdateProduct(Guid productId, Product product)
+    {
+        await _productService.UpdateProduct(product);
+        return CreatedAtRoute(nameof(GetProductById), new {productId = product.Id}, product);
+    }
 }

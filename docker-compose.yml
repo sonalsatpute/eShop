@@ -1,19 +1,19 @@
 ﻿services:
-  eShop.WebApi:
-    image: eshop.webapi
-    restart: always
-    build:
-      context: .
-      dockerfile: eShop.WebApi/Dockerfile
-    environment:
-        ConnectionStrings__eShopDb: Host=eShop.db;Port=5432;Database=eShop;Username=postgres;Password=postgres
-        ConnectionStrings__eShopCache: eShop.cache:6379
-        ConnectionStrings__RabbitMq: amqp://guest:guest@rabbitmq:5672/
-        otlp_collector_endpoint: http://otel-collector:4317
-    ports:  
-      - "8080:80"
-    depends_on:
-      - otel-collector
+#  eShop.WebApi:
+#    image: eshop.webapi
+#    restart: always
+#    build:
+#      context: .
+#      dockerfile: eShop.WebApi/Dockerfile
+#    environment:
+#        ConnectionStrings__eShopDb: Host=eShop.db;Port=5432;Database=eShop;Username=postgres;Password=postgres
+#        ConnectionStrings__eShopCache: eShop.cache:6379
+#        ConnectionStrings__RabbitMq: amqp://guest:guest@rabbitmq:5672/
+#        otlp_collector_endpoint: http://otel-collector:4317
+#    ports:  
+#      - "8080:80"
+#    depends_on:
+#      - otel-collector
 #      - eShop.db
 #      - eShop.cache
 #      - rabbitmq

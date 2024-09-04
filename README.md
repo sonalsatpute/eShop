@@ -34,6 +34,9 @@ docker compose up
 ```
 
 Grafana: http://localhost:3000/
+- Import Dashboards: 
+    - https://grafana.com/grafana/dashboards/19896-asp-net-otel-metrics-from-otel-collector/
+    - https://grafana.com/grafana/dashboards/17706-asp-net-otel-metrics/
 Loki: http://localhost:3100/
 Prometheus: http://localhost:9090/
 Jaeger: http://localhost:16686/

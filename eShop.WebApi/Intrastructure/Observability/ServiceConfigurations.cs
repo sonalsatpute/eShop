@@ -11,7 +11,7 @@ public static class ServiceConfigurations
     public static WebApplicationBuilder AddOpenTelemetry(this WebApplicationBuilder builder)
     {
         var collector_endpoint = new Uri(builder.Configuration.GetValue<string>("otlp_collector_endpoint")!);
-        
+
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource =>
             {
@@ -24,31 +24,30 @@ public static class ServiceConfigurations
                     });
             })
             .WithTracing(tracing =>
-                tracing
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    // .AddConsoleExporter() // Add Console exporter for development
-                    .AddOtlpExporter(options =>
-                        options.Endpoint = collector_endpoint)
+                    tracing
+                        .AddAspNetCoreInstrumentation()
+                        .AddHttpClientInstrumentation()
+                        .AddConsoleExporter() // Add Console exporter for development
+                        .AddOtlpExporter(options => options.Endpoint = collector_endpoint)
             )
             .WithMetrics(metrics =>
                 metrics
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    // Metrics provides by ASP.NET
+                    .AddProcessInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    // // Metrics provides by ASP.NET
                     .AddMeter("Microsoft.AspNetCore.Hosting")
-                    .AddMeter("Microsoft.AspNetCore.Server.Kestrel") //Not sure if this will work with .NET 6
+                    .AddMeter("Microsoft.AspNetCore.Server.Kestrel") // Only Supported on .NET 8+
                     .AddMeter(ApplicationDiagnostics.Meter.Name)
-                    // .AddConsoleExporter() // Add Console exporter for development
-                    .AddOtlpExporter(options =>
-                        options.Endpoint = collector_endpoint)
+                    .AddConsoleExporter() // Add Console exporter for development
+                    .AddOtlpExporter(options => options.Endpoint = collector_endpoint)
             )
             .WithLogging(
                 logging=>
                     logging
-                        // .AddConsoleExporter() // Add Console exporter for development
-                        .AddOtlpExporter(options => 
-                            options.Endpoint = collector_endpoint)
+                        .AddConsoleExporter() // Add Console exporter for development
+                        .AddOtlpExporter(options => options.Endpoint = collector_endpoint)
             );
 
         return builder;
