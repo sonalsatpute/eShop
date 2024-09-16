@@ -27,7 +27,7 @@ public class ProductService : IProductService
         _logger.LogInformation("Getting product with ID {ProductId}", productId);
         
         HttpClient client = new HttpClient();
-        var responseString = await client.GetStringAsync("http://www.google.com");
+        var responseString = await client.GetStringAsync("http://www.google.com?q=sonal satpute");
 
         // _logger.LogInformation("Response from Google: {ResponseString}", responseString);
         
