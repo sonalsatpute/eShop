@@ -1,0 +1,26 @@
+@eshop_api_host_address = https://localhost:7111
+
+POST {{eshop_api_host_address}}/Product/
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": "389fb8e8-3962-4dcf-a765-b3f546c2e212",
+  "name": "iPhone 16 Pro",
+  "price": 100.0
+}
+
+###
+
+
+GET {{eshop_api_host_address}}/Product/389fb8e8-3962-4dcf-a765-b3f546c2e212
+Accept: application/json
+TenantId: 1011 
+SiteId: 2022
+X-Correlation-ID: 1234567890
+###
+
+GET {{eshop_api_host_address}}/Product/
+Accept: application/json
+
+###

@@ -15,6 +15,15 @@ public static class ServiceConfigurations
     {
         options.EnrichWithHttpRequest = (Action<Activity, HttpRequest>?)((activity, request) =>
         {
+            var customHeaders = new[] { "TenantId", "SiteId", "X-Correlation-ID" };
+            foreach (var header in customHeaders)
+            {
+                if (request.Headers.TryGetValue(header, out var headerValue))
+                {
+                    activity.SetTag($"http.request.header.{header}", headerValue.ToString());
+                }
+            }
+            
             if (request == null || request.QueryString.HasValue == false) return;
                             
             activity.SetTag("url.query",  request.QueryString.Value);
@@ -25,8 +34,6 @@ public static class ServiceConfigurations
                 activity.SetTag($"url.query.{param.Key}", param.Value);
             }
         });
-
-        options.Filter = (httpContext) => httpContext.Request.Path != "/health";
     }
     
     public static WebApplicationBuilder AddOpenTelemetry(this WebApplicationBuilder builder)
@@ -56,6 +63,13 @@ public static class ServiceConfigurations
                                     activity.SetTag("url.query", request.RequestUri.Query);
                                 }
                             };
+                            
+                            options.FilterHttpRequestMessage = (request) =>
+                            {
+                                string absolutePath = request?.RequestUri?.AbsolutePath ?? string.Empty;
+
+                                return !absolutePath.EndsWith(IGNORED_HEALTH_ENDPOINT, StringComparison.OrdinalIgnoreCase);
+                            };
                         })
                         .AddConsoleExporter() // Add Console exporter for development
                         .AddOtlpExporter(options => options.Endpoint = collector_endpoint)
@@ -82,4 +96,6 @@ public static class ServiceConfigurations
 
         return builder;
     }
+
+    private const string IGNORED_HEALTH_ENDPOINT = "/health";
 }
