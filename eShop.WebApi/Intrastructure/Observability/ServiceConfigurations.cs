@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using eShop.Observability;
 using Microsoft.Extensions.Primitives;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
@@ -38,8 +39,10 @@ public static class ServiceConfigurations
     
     public static WebApplicationBuilder AddOpenTelemetry(this WebApplicationBuilder builder)
     {
-        var collector_endpoint = new Uri(builder.Configuration.GetValue<string>("otlp_collector_endpoint")!);
+        var collector_endpoint = new Uri(builder.Configuration.GetValue<string>("open_telemetry_collector_url")!);
 
+        builder.Services.AddSingleton<IApplicationTypeChecker, ApplicationTypeChecker>();
+        builder.Services.AddSingleton<IObservabilityOptions, ObservabilityOptions>();
         builder.Services.AddOpenTelemetry()
             .ConfigureResource(resource =>
             {
@@ -71,6 +74,7 @@ public static class ServiceConfigurations
                                 return !absolutePath.EndsWith(IGNORED_HEALTH_ENDPOINT, StringComparison.OrdinalIgnoreCase);
                             };
                         })
+                        // .AddProcessor<ApiContextTraceProcessor>()
                         .AddConsoleExporter() // Add Console exporter for development
                         .AddOtlpExporter(options => options.Endpoint = collector_endpoint)
             )

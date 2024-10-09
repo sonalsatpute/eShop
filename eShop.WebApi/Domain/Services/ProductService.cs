@@ -27,6 +27,12 @@ public class ProductService : IProductService
         _logger.LogInformation("Getting product with ID {ProductId}", productId);
         
         HttpClient client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        client.DefaultRequestHeaders.Add("User-Agent", "eShop.WebApi");
+        client.DefaultRequestHeaders.Add("correlation.id", Guid.NewGuid().ToString());
+        client.DefaultRequestHeaders.Add("Tenant.Id", "1234");
+        client.DefaultRequestHeaders.Add("Site.Id", "5678");
+        
         var responseString = await client.GetStringAsync("http://www.google.com?q=sonal satpute");
 
         // _logger.LogInformation("Response from Google: {ResponseString}", responseString);

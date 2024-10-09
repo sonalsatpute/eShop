@@ -15,9 +15,10 @@ Content-Type: application/json
 
 GET {{eshop_api_host_address}}/Product/389fb8e8-3962-4dcf-a765-b3f546c2e212
 Accept: application/json
-TenantId: 1011 
-SiteId: 2022
-X-Correlation-ID: 1234567890
+Tenant.Id: 1011 
+Site.Id: 2022
+Correlation.ID: 389fb8e8-3962-4dcf-a765-b3f546c2e111
+
 ###
 
 GET {{eshop_api_host_address}}/Product/
