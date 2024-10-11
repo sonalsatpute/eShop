@@ -15,7 +15,7 @@ public class Program
             .ConfigureServices((hostContext, services) =>
             {
                 services
-                     .AddObservability()
+                    .AddObservability()
                     .AddHostedService<SubmarineService>();
             });
 }

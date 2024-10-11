@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace eShop.Observability.Configurations;
 
@@ -15,7 +16,7 @@ public static class ObservabilityConfigurations
     public static IServiceCollection AddObservability(this IServiceCollection services)
     {
         services
-            .AddSingleton<IApplicationTypeChecker, ApplicationTypeChecker>()
+            .AddSingleton<IApplicationTypeChecker>(provider => new ApplicationTypeChecker(provider))
             .AddSingleton<ICaptureHeader, CaptureHeader>()
             .AddSingleton<IObservabilityOptions, ObservabilityOptions>()
             .AddSingleton<IResourceConfiguration, ResourceConfiguration>()
@@ -23,19 +24,16 @@ public static class ObservabilityConfigurations
             .AddSingleton<IMetricsConfiguration, MetricsConfiguration>()
             .AddSingleton<ILoggingConfiguration, LoggingConfiguration>()
             .AddSingleton<IObservability, Observability>();
-
         
-        IObservability observability = GetServiceObservability(services);
-        
-        return observability.Configure(services);
+        return services.ConfigureObservability();
     }
-    
-    private static IObservability GetServiceObservability(IServiceCollection services)
+
+    private static IServiceCollection ConfigureObservability(this IServiceCollection services)
     {
-        // 🔥I know, I know, this is an anti-pattern!
-        // ❓but it's the only way to get the service instance in static scope? 
         ServiceProvider serviceProvider = services.BuildServiceProvider();
-        IObservability observabilityOptions = serviceProvider.GetService<IObservability>()!;
-        return observabilityOptions;
+        IObservability observability = serviceProvider.GetRequiredService<IObservability>();
+        observability.Configure(services);
+        
+        return services;
     }
 }

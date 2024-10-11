@@ -22,9 +22,6 @@ public interface IObservabilityOptions
     bool IsMetricsEnabled { get; }
     bool IsLoggingEnabled { get; }
     bool IsObservabilityEnabled { get; }
-    
-    bool IsWebApp { get; }
-    bool IsConsoleApp { get; }
 }
 
 public class ObservabilityOptions : IObservabilityOptions
@@ -41,25 +38,21 @@ public class ObservabilityOptions : IObservabilityOptions
         )
     {
         ServiceName = configuration.GetValue<string>(SERVICE_NAME)!;
-        
         ServiceVersion = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
         CurrentActivitySource = new ActivitySource(ServiceName, ServiceVersion);
-        
         IsTracingEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_TRACING_ENABLED);
         IsMetricsEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_METRICS_ENABLED);
         IsLoggingEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_LOGGING_ENABLED);
         CollectorEndpoint = new Uri(configuration.GetValue<string>(OPEN_TELEMETRY_COLLECTOR_URL)!);
     }
-    
-    public ActivitySource CurrentActivitySource { get;}
+
+    public ActivitySource CurrentActivitySource { get; }
     public string ServiceName { get; }
     public string ServiceVersion { get; }
     public Uri CollectorEndpoint { get; }
     public bool IsTracingEnabled { get; }
     public bool IsMetricsEnabled { get; }
     public bool IsLoggingEnabled { get; }
-    public bool IsWebApp { get; }
-    public bool IsConsoleApp { get; }
     
     public bool IsObservabilityEnabled => IsTracingEnabled || IsMetricsEnabled || IsLoggingEnabled;
 }

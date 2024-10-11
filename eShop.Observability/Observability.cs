@@ -11,6 +11,7 @@ public interface IObservability
 
 internal class Observability : IObservability
 {
+    private readonly IApplicationTypeChecker _typeCheckerChecker;
     private readonly IObservabilityOptions _options;
     private readonly IResourceConfiguration _resource;
     private readonly ITracingConfiguration _tracing;
@@ -18,6 +19,7 @@ internal class Observability : IObservability
     private readonly ILoggingConfiguration _logging;
 
     public Observability(
+        IApplicationTypeChecker typeCheckerChecker,
         IObservabilityOptions options,
         IResourceConfiguration resource,
         ITracingConfiguration tracing,
@@ -25,6 +27,7 @@ internal class Observability : IObservability
         ILoggingConfiguration logging
     )
     {
+        _typeCheckerChecker = typeCheckerChecker;
         _options = options;
         _resource = resource;
         _tracing = tracing;
@@ -36,24 +39,9 @@ internal class Observability : IObservability
     {
         if (!_options.IsObservabilityEnabled) return services;
         
-        return IsWebApplication(services) 
+        return _typeCheckerChecker.IsWebApp() 
             ? ConfigureWebApp(services) 
             : ConfigureConsoleApp(services);
-    }
-
-    public bool IsWebApplication(IServiceCollection services)
-    {
-        IApplicationTypeChecker typeCheckerChecker = GetServiceApplicationTypeChecker(services);
-        return typeCheckerChecker.IsWebApp();
-    }
-    
-    private static IApplicationTypeChecker GetServiceApplicationTypeChecker(IServiceCollection services)
-    {
-        // 🔥I know, I know, this is an anti-pattern!
-        // ❓but it's the only way to get the service instance in static scope? 
-        ServiceProvider serviceProvider = services.BuildServiceProvider();
-        IApplicationTypeChecker typeChecker = serviceProvider.GetService<IApplicationTypeChecker>()!;
-        return typeChecker;
     }
     
     private IServiceCollection ConfigureConsoleApp(IServiceCollection services)

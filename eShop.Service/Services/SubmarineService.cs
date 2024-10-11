@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using eShop.Observability;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -9,19 +10,22 @@ namespace eShop.Service.Services;
 /// </summary>
 public class SubmarineService : BackgroundService
 {
-    public static readonly ActivitySource ActivitySource = new(ActivitySourceName);
-    public const string ActivitySourceName = "eShop.Service";
-    
+
+    private readonly IObservabilityOptions _observability;
     private readonly ILogger<SubmarineService> _logger;
     
-    public SubmarineService(ILogger<SubmarineService> logger)
+    public SubmarineService(
+        IObservabilityOptions observability,
+        ILogger<SubmarineService> logger
+        )
     {
+        _observability = observability;
         _logger = logger;
     }
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using Activity? activity = ActivitySource.StartActivity();
+        using Activity? activity = _observability.CurrentActivitySource.StartActivity();
         
         _logger.LogInformation($"starting {nameof(SubmarineService)}");
         using var httpClient = new HttpClient();
