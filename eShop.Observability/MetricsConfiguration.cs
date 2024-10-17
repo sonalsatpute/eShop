@@ -6,7 +6,7 @@ namespace eShop.Observability;
 
 internal interface IMetricsConfiguration
 {
-    void Configure(OpenTelemetryBuilder builder);
+    void Configure(IOpenTelemetryBuilder builder);
     void Configure(ResourceBuilder resource);
 }
 
@@ -27,7 +27,7 @@ internal class MetricsConfiguration : IMetricsConfiguration
     /// Configure Metrics for Web App
     /// </summary>
     /// <param name="builder"></param>
-    public void Configure(OpenTelemetryBuilder builder)
+    public void Configure(IOpenTelemetryBuilder builder)
     {
         if (!_options.IsMetricsEnabled) return;
         
@@ -68,9 +68,6 @@ internal class MetricsConfiguration : IMetricsConfiguration
             .AddConsoleExporter() // Add Console exporter for development
             .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
 
-        if (isConsoleApp)
-        {
-            metrics.Build();
-        }
+        if (isConsoleApp) metrics.Build();
     }
 }

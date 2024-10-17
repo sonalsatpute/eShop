@@ -1,7 +1,6 @@
 using eShop.Observability.Configurations;
 using eShop.WebApi.Database;
 using eShop.WebApi.Domain;
-using eShop.WebApi.Infrastructure.Observability;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +17,7 @@ builder.Services.AddSwaggerGen();
 
 // Add OpenTelemetry services.
 builder.Services.AddObservability();
+// builder.Services.AddSingleton<IStartupFilter, ObservabilityStartupFilter>();
 // builder.AddOpenTelemetry();
 
 

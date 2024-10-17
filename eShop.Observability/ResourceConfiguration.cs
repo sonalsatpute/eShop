@@ -24,7 +24,6 @@ internal class ResourceConfiguration : IResourceConfiguration
                 serviceInstanceId: Environment.MachineName
             );
 
-        if (isConsoleApp)
-            resource.Build();
+        if (isConsoleApp) resource.Build();
     }
 }

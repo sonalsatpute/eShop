@@ -8,7 +8,7 @@ namespace eShop.Observability;
 
 internal interface ILoggingConfiguration
 {
-    void Configure(OpenTelemetryBuilder builder);
+    void Configure(IOpenTelemetryBuilder builder);
     
     IServiceCollection Configure(
         IServiceCollection services,
@@ -25,7 +25,7 @@ class LoggingConfiguration : ILoggingConfiguration
     }
     
     
-    public void Configure(OpenTelemetryBuilder builder)
+    public void Configure(IOpenTelemetryBuilder builder)
     {
         if (!_options.IsLoggingEnabled) return;
             

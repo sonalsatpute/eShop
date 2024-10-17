@@ -66,3 +66,15 @@ internal class Observability : IObservability
         return services;
     }
 }
+
+public interface IObservabilityConfigurator
+{
+}
+
+public class ObservabilityConfigurator : IObservabilityConfigurator
+{
+    public ObservabilityConfigurator(IObservability observability, IServiceCollection services)
+    {
+        observability.Configure(services);
+    }
+}

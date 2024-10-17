@@ -11,7 +11,7 @@ namespace eShop.Observability;
 
 internal interface ITracingConfiguration
 {
-    void Configure(OpenTelemetryBuilder builder);
+    void Configure(IOpenTelemetryBuilder builder);
     void Configure(ResourceBuilder resource);
 }
 
@@ -27,7 +27,7 @@ internal class TracingConfiguration : ITracingConfiguration
         _captureHeader = captureHeader;
     }
     
-    public void Configure(OpenTelemetryBuilder builder)
+    public void Configure(IOpenTelemetryBuilder builder)
     {
         if (!_options.IsTracingEnabled) return;
         
@@ -57,10 +57,7 @@ internal class TracingConfiguration : ITracingConfiguration
             .AddConsoleExporter() // Add Console exporter for development
             .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
         
-        if (isConsoleApp)
-        {
-            builder.Build();
-        }
+        if (isConsoleApp) builder.Build();
     }
     
     private void ConfigureHttpClientTraceInstrumentationOptions(HttpClientTraceInstrumentationOptions options)
