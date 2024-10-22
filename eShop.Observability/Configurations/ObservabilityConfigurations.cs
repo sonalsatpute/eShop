@@ -1,9 +1,6 @@
-﻿using eShop.Observability.Configurations.eShop.Observability.Configurations;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using OpenTelemetry;
-using OpenTelemetry.Resources;
 
 namespace eShop.Observability.Configurations;
 
@@ -16,34 +13,23 @@ public static class ObservabilityConfigurations
     /// Adds OpenTelemetry instrumentation to the service collection.
     /// </summary>
     /// <param name="services">The service collection to add the instrumentation to.</param>
+    /// <param name="configuration">The configuration to use for the instrumentation.</param>
+    /// <param name="isConsoleApp">Indicates whether the application is a console application.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddObservability(this IServiceCollection services, bool isWebApp = true)
+    public static IServiceCollection AddObservability(this IServiceCollection services, IConfiguration configuration, bool isConsoleApp = false)
     {
-        // services.AddSingleton<IStartupFilter, ObservabilityStartupFilter>();
+        IObservabilityOptions options = new ObservabilityOptions(configuration, isConsoleApp);
 
-        // services.TryAddSingleton<IApplicationTypeChecker>(provider => 
-        //     new ApplicationTypeChecker(provider));
+        IObservability observability = new Observability(
+            options,
+            new ResourceConfiguration(options),
+            new TracingConfiguration(options, new CaptureHeader()),
+            new MetricsConfiguration(options),
+            new LoggingConfiguration(options)
+        );
         
-        services.TryAddSingleton<ICaptureHeader, CaptureHeader>();
-        services.TryAddSingleton<IObservabilityOptions, ObservabilityOptions>();
-        services.TryAddSingleton<IResourceConfiguration, ResourceConfiguration>();
-        services.TryAddSingleton<ITracingConfiguration, TracingConfiguration>();
-        services.TryAddSingleton<IMetricsConfiguration, MetricsConfiguration>();
-        services.TryAddSingleton<ILoggingConfiguration, LoggingConfiguration>();
-        services.TryAddSingleton<IObservability, Observability>();
-        // services.TryAddSingleton<IObservabilityConfigurator>(
-        //     new ObservabilityConfigurator(null!, null!)
-        //     );
-
-        return services.ConfigureObservability();
-    }
-
-    private static IServiceCollection ConfigureObservability(this IServiceCollection services)
-    {
-        ServiceProvider serviceProvider = services.BuildServiceProvider();
-        IObservability observability = serviceProvider.GetRequiredService<IObservability>();
-        observability.Configure(services);
+        services.TryAddSingleton(options);
         
-        return services;
+        return observability.Configure(services);
     }
 }

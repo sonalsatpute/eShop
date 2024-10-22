@@ -50,7 +50,9 @@ internal class TracingConfiguration : ITracingConfiguration
             builder
                 .AddAspNetCoreInstrumentation(ConfigureAspNetCoreTraceInstrumentationOptions);
 
-        builder.AddHttpClientInstrumentation(ConfigureHttpClientTraceInstrumentationOptions)
+        builder
+            // .AddProcessor<ApiContextTraceProcessor>()
+            .AddHttpClientInstrumentation(ConfigureHttpClientTraceInstrumentationOptions)
             .AddAWSInstrumentation()
             .AddRedisInstrumentation()
             .AddSource(_options.ActivitySourceName)

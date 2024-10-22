@@ -11,7 +11,6 @@ public interface IObservability
 
 internal class Observability : IObservability
 {
-    private readonly IApplicationTypeChecker _typeCheckerChecker;
     private readonly IObservabilityOptions _options;
     private readonly IResourceConfiguration _resource;
     private readonly ITracingConfiguration _tracing;
@@ -19,7 +18,6 @@ internal class Observability : IObservability
     private readonly ILoggingConfiguration _logging;
 
     public Observability(
-        IApplicationTypeChecker typeCheckerChecker,
         IObservabilityOptions options,
         IResourceConfiguration resource,
         ITracingConfiguration tracing,
@@ -27,7 +25,6 @@ internal class Observability : IObservability
         ILoggingConfiguration logging
     )
     {
-        _typeCheckerChecker = typeCheckerChecker;
         _options = options;
         _resource = resource;
         _tracing = tracing;
@@ -39,7 +36,7 @@ internal class Observability : IObservability
     {
         if (!_options.IsObservabilityEnabled) return services;
         
-        return _typeCheckerChecker.IsWebApp() 
+        return _options.IsConsoleApp
             ? ConfigureWebApp(services) 
             : ConfigureConsoleApp(services);
     }

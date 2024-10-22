@@ -22,6 +22,7 @@ public interface IObservabilityOptions
     bool IsMetricsEnabled { get; }
     bool IsLoggingEnabled { get; }
     bool IsObservabilityEnabled { get; }
+    bool IsConsoleApp { get; }
 }
 
 public class ObservabilityOptions : IObservabilityOptions
@@ -34,18 +35,19 @@ public class ObservabilityOptions : IObservabilityOptions
 
     
     public ObservabilityOptions(
-            IConfiguration configuration
-        )
+            IConfiguration configuration, bool isConsoleApp = false)
     {
-        ServiceName = configuration.GetValue<string>(SERVICE_NAME)!;
+        IsConsoleApp = isConsoleApp;
+        ServiceName = configuration.GetValue<string>(SERVICE_NAME, "eShop")!;
         ServiceVersion = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
         CurrentActivitySource = new ActivitySource(ServiceName, ServiceVersion);
-        IsTracingEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_TRACING_ENABLED);
-        IsMetricsEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_METRICS_ENABLED);
-        IsLoggingEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_LOGGING_ENABLED);
-        CollectorEndpoint = new Uri(configuration.GetValue<string>(OPEN_TELEMETRY_COLLECTOR_URL)!);
+        IsTracingEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_TRACING_ENABLED, false);
+        IsMetricsEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_METRICS_ENABLED, false);
+        IsLoggingEnabled = configuration.GetValue<bool>(OPEN_TELEMETRY_LOGGING_ENABLED, false);
+        CollectorEndpoint = new Uri(configuration.GetValue<string>(OPEN_TELEMETRY_COLLECTOR_URL, "http://localhost:4317")!);
     }
 
+    public bool IsConsoleApp { get; }
     public ActivitySource CurrentActivitySource { get; }
     public string ServiceName { get; }
     public string ServiceVersion { get; }
