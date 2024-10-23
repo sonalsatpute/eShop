@@ -4,7 +4,7 @@ namespace eShop.Observability;
 
 internal interface IResourceConfiguration
 {
-    void Configure(ResourceBuilder resource, bool isConsoleApp = false);
+    void Configure(ResourceBuilder resource);
 }
 
 internal class ResourceConfiguration : IResourceConfiguration
@@ -16,7 +16,7 @@ internal class ResourceConfiguration : IResourceConfiguration
         _options = options;
     }
 
-    public void Configure(ResourceBuilder resource, bool isConsoleApp = false)
+    public void Configure(ResourceBuilder resource)
     {
         resource.AddService(
                 serviceName: _options.ServiceName,
@@ -24,6 +24,7 @@ internal class ResourceConfiguration : IResourceConfiguration
                 serviceInstanceId: Environment.MachineName
             );
 
-        if (isConsoleApp) resource.Build();
+        if (!_options.ForWebApp) 
+            resource.Build();
     }
 }

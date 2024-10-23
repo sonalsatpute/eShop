@@ -28,16 +28,28 @@ public class SubmarineService : IHostedService
         
         _logger.LogInformation($"starting {nameof(SubmarineService)}");
         using var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync("https://jsonplaceholder.typicode.com/posts/1", cancellationToken);
-        
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-            _logger.LogInformation($"API response : {content.Length}");
+            activity?.AddEvent(new ActivityEvent("calling api endpoint"));
+            // activity?.Stop();
+            // HttpResponseMessage response = await httpClient.GetAsync("https://google.com/posts/1", cancellationToken);
+            //
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     var content = await response.Content.ReadAsStringAsync(cancellationToken);
+            //     _logger.LogInformation($"API response : {content.Length}");
+            // }
+            //
+            // _logger.LogInformation($"API call status code: {response.StatusCode}");
+            // activity?.SetTag("status.code", response.StatusCode.ToString());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
         
-        _logger.LogInformation($"API call status code: {response.StatusCode}");
-        activity?.SetTag("status.code", response.StatusCode.ToString());
+        
         activity?.AddEvent(new ActivityEvent("Finished API call"));
         activity?.Stop();
     }

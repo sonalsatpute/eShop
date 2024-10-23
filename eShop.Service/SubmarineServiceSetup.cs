@@ -11,7 +11,7 @@ public class SubmarineServiceSetup : IDaemonServiceSetup
     public IConfigurationBuilder BuildConfiguration(IConfigurationBuilder configBuilder) => configBuilder;
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration) => 
-        services.AddObservability(configuration,true);
+        services.AddObservability(configuration,forWebApp: false);
 
     public void ConfigureLogging(ILoggingBuilder loggingBuilder)
     {

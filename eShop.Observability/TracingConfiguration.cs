@@ -11,8 +11,8 @@ namespace eShop.Observability;
 
 internal interface ITracingConfiguration
 {
-    void Configure(IOpenTelemetryBuilder builder);
-    void Configure(ResourceBuilder resource);
+    void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder>? configuratorConfigureTracerProvider);
+    void Configure(ResourceBuilder resource, Action<TracerProviderBuilder>? configuratorConfigureTracerProvider);
 }
 
 internal class TracingConfiguration : ITracingConfiguration
@@ -27,42 +27,50 @@ internal class TracingConfiguration : ITracingConfiguration
         _captureHeader = captureHeader;
     }
     
-    public void Configure(IOpenTelemetryBuilder builder)
+    public void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder>? configureTracerProvider)
     {
         if (!_options.IsTracingEnabled) return;
         
-        builder.WithTracing(tracing => ConfigureTracing(tracing));
+        if (configureTracerProvider != null)
+            builder.WithTracing(configureTracerProvider);
+        else
+            builder.WithTracing(ConfigureTracing);
     }
 
-    public void Configure(ResourceBuilder resource)
+    public void Configure(ResourceBuilder resource, Action<TracerProviderBuilder>? configureTracerProvider)
     {
         if (!_options.IsTracingEnabled) return;
+
+        TracerProviderBuilder tracing = Sdk.CreateTracerProviderBuilder();
         
-        var _tracing = Sdk.CreateTracerProviderBuilder();
-        _tracing.SetResourceBuilder(resource);
-        ConfigureTracing(_tracing, true);
+        if (configureTracerProvider != null)
+            configureTracerProvider.Invoke(tracing);
+        else
+        {
+            tracing.SetResourceBuilder(resource);
+            ConfigureTracing(tracing);
+        }
     }
 
     
-    private void ConfigureTracing(TracerProviderBuilder builder, bool isConsoleApp = false)
+    private void ConfigureTracing(TracerProviderBuilder builder)
     {
-        if (!isConsoleApp)
-            builder
-                .AddAspNetCoreInstrumentation(ConfigureAspNetCoreTraceInstrumentationOptions);
+        // if (_options.ForWebApp)
+            builder.AddAspNetCoreInstrumentation(ConfigureAspNetCoreTraceInstrumentationOptions);
 
-        builder
-            // .AddProcessor<ApiContextTraceProcessor>()
-            .AddHttpClientInstrumentation(ConfigureHttpClientTraceInstrumentationOptions)
-            .AddAWSInstrumentation()
-            .AddRedisInstrumentation()
-            .AddSource(_options.ActivitySourceName)
-            .AddConsoleExporter() // Add Console exporter for development
-            .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
+        // builder.AddProcessor<ApiContextTraceProcessor>()
+        // builder.AddHttpClientInstrumentation(ConfigureHttpClientTraceInstrumentationOptions);
+        builder.AddAWSInstrumentation();
+        builder.AddRedisInstrumentation();
+        builder.AddSource(_options.ActivitySourceName);
+        builder.AddConsoleExporter(); // Add Console exporter for development
+        builder.AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
         
-        if (isConsoleApp) builder.Build();
+        if (!_options.ForWebApp) 
+            builder.Build();
     }
     
-    private void ConfigureHttpClientTraceInstrumentationOptions(HttpClientTraceInstrumentationOptions options)
+    private static void ConfigureHttpClientTraceInstrumentationOptions(HttpClientTraceInstrumentationOptions options)
     {
         options.EnrichWithHttpRequestMessage = (activity, request) =>
         {
@@ -71,12 +79,12 @@ internal class TracingConfiguration : ITracingConfiguration
                 activity.SetTag(ObservabilityConstants.URL_QUERY, request.RequestUri.Query);
             }
             
-            _captureHeader.SetTags(activity, request?.Headers!, true);
+            // _captureHeader.SetTags(activity, request?.Headers!, true);
         };
         
         options.EnrichWithHttpResponseMessage = (activity, response) =>
         {
-            _captureHeader.SetTags(activity, response?.Headers!);
+            // _captureHeader.SetTags(activity, response?.Headers!);
         };
 
         options.FilterHttpRequestMessage = (request) =>

@@ -22,7 +22,7 @@ public interface IObservabilityOptions
     bool IsMetricsEnabled { get; }
     bool IsLoggingEnabled { get; }
     bool IsObservabilityEnabled { get; }
-    bool IsConsoleApp { get; }
+    bool ForWebApp { get; }
 }
 
 public class ObservabilityOptions : IObservabilityOptions
@@ -35,9 +35,9 @@ public class ObservabilityOptions : IObservabilityOptions
 
     
     public ObservabilityOptions(
-            IConfiguration configuration, bool isConsoleApp = false)
+            IConfiguration configuration, bool forWebApp = true)
     {
-        IsConsoleApp = isConsoleApp;
+        ForWebApp = forWebApp;
         ServiceName = configuration.GetValue<string>(SERVICE_NAME, "eShop")!;
         ServiceVersion = Assembly.GetExecutingAssembly().GetName().Version!.ToString();
         CurrentActivitySource = new ActivitySource(ServiceName, ServiceVersion);
@@ -47,7 +47,7 @@ public class ObservabilityOptions : IObservabilityOptions
         CollectorEndpoint = new Uri(configuration.GetValue<string>(OPEN_TELEMETRY_COLLECTOR_URL, "http://localhost:4317")!);
     }
 
-    public bool IsConsoleApp { get; }
+    public bool ForWebApp { get; }
     public ActivitySource CurrentActivitySource { get; }
     public string ServiceName { get; }
     public string ServiceVersion { get; }

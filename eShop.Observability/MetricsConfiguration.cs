@@ -6,8 +6,8 @@ namespace eShop.Observability;
 
 internal interface IMetricsConfiguration
 {
-    void Configure(IOpenTelemetryBuilder builder);
-    void Configure(ResourceBuilder resource);
+    void Configure(IOpenTelemetryBuilder builder, Action<MeterProviderBuilder>? configureMeterProvider);
+    void Configure(ResourceBuilder resource, Action<MeterProviderBuilder>? configureMeterProvider);
 }
 
 internal class MetricsConfiguration : IMetricsConfiguration
@@ -22,36 +22,47 @@ internal class MetricsConfiguration : IMetricsConfiguration
     {
         _options = options;
     }
-    
+
     /// <summary>
     /// Configure Metrics for Web App
     /// </summary>
     /// <param name="builder"></param>
-    public void Configure(IOpenTelemetryBuilder builder)
+    /// <param name="configureMeterProvider"></param>
+    public void Configure(IOpenTelemetryBuilder builder,
+        Action<MeterProviderBuilder>? configureMeterProvider)
     {
         if (!_options.IsMetricsEnabled) return;
         
-        builder.WithMetrics(metrics =>  ConfigureMetrics(metrics));
+        if (configureMeterProvider != null)
+            builder.WithMetrics(configureMeterProvider);
+        else
+            builder.WithMetrics(ConfigureMetrics);
+        
     }
 
     /// <summary>
     /// Configure Metrics for Console App
     /// </summary>
     /// <param name="resource"></param>
-    public void Configure(ResourceBuilder resource)
+    /// <param name="configureMeterProvider"></param>
+    public void Configure(ResourceBuilder resource,
+        Action<MeterProviderBuilder>? configureMeterProvider)
     {
         if (!_options.IsMetricsEnabled) return;
         
         MeterProviderBuilder metrics = Sdk.CreateMeterProviderBuilder();
         metrics.SetResourceBuilder(resource);
         
-        ConfigureMetrics(metrics, true);
+        if (configureMeterProvider != null)
+            configureMeterProvider.Invoke(metrics);
+        else
+            ConfigureMetrics(metrics);
     }
 
-    private void ConfigureMetrics(MeterProviderBuilder metrics, bool isConsoleApp = false)
+    private void ConfigureMetrics(MeterProviderBuilder metrics)
     {
         MeterProviderBuilder builder = metrics.AddAspNetCoreInstrumentation();
-        if (!isConsoleApp)
+        if (_options.ForWebApp)
         {
             // Metrics provides
             builder
@@ -68,6 +79,6 @@ internal class MetricsConfiguration : IMetricsConfiguration
             .AddConsoleExporter() // Add Console exporter for development
             .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
 
-        if (isConsoleApp) metrics.Build();
+        if (!_options.ForWebApp) metrics.Build();
     }
 }

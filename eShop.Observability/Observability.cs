@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using eShop.Observability.Configurations;
+using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 
@@ -6,7 +7,7 @@ namespace eShop.Observability;
 
 public interface IObservability
 {
-    IServiceCollection Configure(IServiceCollection services);
+    IServiceCollection Configure(IServiceCollection services, IObservabilityConfigurator configurator);
 }
 
 internal class Observability : IObservability
@@ -32,46 +33,46 @@ internal class Observability : IObservability
         _logging = logging;
     }
 
-    public IServiceCollection Configure(IServiceCollection services)
+    public IServiceCollection Configure(IServiceCollection services,
+        IObservabilityConfigurator observabilityConfigurator)
     {
         if (!_options.IsObservabilityEnabled) return services;
         
-        return _options.IsConsoleApp
-            ? ConfigureWebApp(services) 
-            : ConfigureConsoleApp(services);
+        return _options.ForWebApp
+            ? ConfigureWebApp(services, observabilityConfigurator) 
+            : ConfigureConsoleApp(services, observabilityConfigurator);
     }
     
-    private IServiceCollection ConfigureConsoleApp(IServiceCollection services)
+    private IServiceCollection ConfigureConsoleApp(IServiceCollection services,
+        IObservabilityConfigurator configurator)
     {
         ResourceBuilder resource = ResourceBuilder.CreateDefault();
-        _resource.Configure(resource, true);
+
+        if (configurator?.ConfigureResources != null)
+            configurator.ConfigureResources.Invoke(resource);
+        else
+            _resource.Configure(resource);
         
-        _tracing.Configure(resource);
-        _metrics.Configure(resource);
-        return _logging.Configure(services, resource);
+        _tracing.Configure(resource, configurator?.ConfigureTracerProvider);
+        _metrics.Configure(resource, configurator?.ConfigureMeterProvider);
+        return _logging.Configure(services, resource, configurator?.ConfigureLoggerProvider);
     }
 
-    private IServiceCollection ConfigureWebApp(IServiceCollection services)
+    private IServiceCollection ConfigureWebApp(IServiceCollection services,
+        IObservabilityConfigurator configurator)
     {
         OpenTelemetryBuilder builder = services.AddOpenTelemetry();
         builder.ConfigureResource(resource => _resource.Configure(resource));
+        
+        if (configurator?.ConfigureResources != null)
+            builder.ConfigureResource(configurator.ConfigureResources);
+        else
+            builder.ConfigureResource(rb=> _resource.Configure(rb));
 
-        _tracing.Configure(builder);
-        _metrics.Configure(builder);
-        _logging.Configure(builder);
+        _tracing.Configure(builder, configurator?.ConfigureTracerProvider);
+        _metrics.Configure(builder, configurator?.ConfigureMeterProvider);
+        _logging.Configure(builder, configurator?.ConfigureLoggerProvider);
         
         return services;
-    }
-}
-
-public interface IObservabilityConfigurator
-{
-}
-
-public class ObservabilityConfigurator : IObservabilityConfigurator
-{
-    public ObservabilityConfigurator(IObservability observability, IServiceCollection services)
-    {
-        observability.Configure(services);
     }
 }

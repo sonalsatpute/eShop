@@ -8,11 +8,12 @@ namespace eShop.Observability;
 
 internal interface ILoggingConfiguration
 {
-    void Configure(IOpenTelemetryBuilder builder);
+    void Configure(IOpenTelemetryBuilder builder,
+    Action<LoggerProviderBuilder>? configureLoggerProvider);
     
-    IServiceCollection Configure(
-        IServiceCollection services,
-        ResourceBuilder resource);
+    IServiceCollection Configure(IServiceCollection services,
+        ResourceBuilder resource, 
+        Action<LoggerProviderBuilder>? configureLoggerProvider);
 }
 
 class LoggingConfiguration : ILoggingConfiguration
@@ -23,25 +24,31 @@ class LoggingConfiguration : ILoggingConfiguration
     {
         _options = options;
     }
-    
-    
-    public void Configure(IOpenTelemetryBuilder builder)
+
+    public void Configure(IOpenTelemetryBuilder builder,
+        Action<LoggerProviderBuilder>? configureLoggerProvider)
     {
         if (!_options.IsLoggingEnabled) return;
-            
-        builder.WithLogging(logging =>
-        {
-            logging
-                .AddConsoleExporter() // Add Console exporter for development
-                .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
-        });
+
+        if (configureLoggerProvider != null)
+            builder.WithLogging(configureLoggerProvider);
+        else
+            builder.WithLogging(logging =>
+            {
+                logging
+                    .AddConsoleExporter() // Add Console exporter for development
+                    .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
+            });
     }
 
-    public IServiceCollection Configure(
-        IServiceCollection services,
-        ResourceBuilder resource)
+    public IServiceCollection Configure(IServiceCollection services,
+        ResourceBuilder resource, 
+        Action<LoggerProviderBuilder>? configureLoggerProvider)
     {
         if (!_options.IsLoggingEnabled) return services;
+        
+        if (configureLoggerProvider != null)
+            throw new NotImplementedException("Custom LoggerProviderBuilder configuration is not supported yet.");
         
         return services.AddLogging(loggingBuilder =>
         {
@@ -49,6 +56,7 @@ class LoggingConfiguration : ILoggingConfiguration
             {
                 options.SetResourceBuilder(resource);
                 options.IncludeScopes = true;
+                options.AddConsoleExporter(); // Add Console exporter for development
                 options.AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = _options.CollectorEndpoint);
             });
         });
