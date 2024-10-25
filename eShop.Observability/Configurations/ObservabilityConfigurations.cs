@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -35,14 +34,17 @@ public static class ObservabilityConfigurations
         
         if ( !options.IsObservabilityEnabled) return services;
 
-        services.TryAddSingleton(options);
-
+        IResourceConfiguration resourceConfiguration = new ResourceConfiguration(options);
+        ITracingConfiguration tracingConfiguration = new TracingConfiguration(options, new CaptureHeader());
+        IMetricsConfiguration metricsConfiguration = new MetricsConfiguration(options);
+        ILoggingConfiguration loggingConfiguration = new LoggingConfiguration(options);
+        
         IObservability observability = new Observability(
             options,
-            new ResourceConfiguration(options),
-            new TracingConfiguration(options, new CaptureHeader()),
-            new MetricsConfiguration(options),
-            new LoggingConfiguration(options)
+            resourceConfiguration,
+            tracingConfiguration,
+            metricsConfiguration,
+            loggingConfiguration
         );
         
         IObservabilityConfigurator observabilityConfigurator = new ObservabilityConfigurator(
@@ -53,59 +55,14 @@ public static class ObservabilityConfigurations
             configureLoggerProvider
         );  
         
-        return observability.Configure(services, observabilityConfigurator);
+        services.TryAddSingleton(options);
+        // services.TryAddSingleton(resourceConfiguration);
+        // services.TryAddSingleton(tracingConfiguration);
+        // services.TryAddSingleton(metricsConfiguration);
+        // services.TryAddSingleton(loggingConfiguration);
         
-        // var openTelemetryBuilder = services.AddOpenTelemetry();
-        // var resource = new ResourceConfiguration(options);
-        //
-        // if (configureResources != null)
-        // {
-        //     openTelemetryBuilder.ConfigureResource(configureResources);
-        // }
-        // else
-        // {
-        //     openTelemetryBuilder.ConfigureResource(rb=> resource.Configure(rb));
-        // }
-        //
-        //
-        // if (options.IsTracingEnabled)
-        // {
-        //     if (configureTracerProvider != null)
-        //     {
-        //         openTelemetryBuilder.WithTracing(configureTracerProvider);
-        //     }
-        //     else
-        //     {
-        //         var traceBuilder = new TracingConfiguration(options, new CaptureHeader());
-        //         traceBuilder.Configure(openTelemetryBuilder, configureTracerProvider);
-        //     }
-        // }
-        // if (options.IsLoggingEnabled)
-        // {
-        //     if (configureLoggerProvider != null)
-        //     {
-        //         openTelemetryBuilder.WithLogging(configureLoggerProvider);
-        //     }
-        //     else
-        //     {
-        //         var loggerBuilder = new LoggingConfiguration(options);
-        //         loggerBuilder.Configure(openTelemetryBuilder, configureLoggerProvider);
-        //     }
-        // }
-        // if (options.IsMetricsEnabled)
-        // {
-        //     if (configureMeterProvider != null)
-        //     {
-        //         openTelemetryBuilder.WithMetrics(configureMeterProvider);
-        //     }
-        //     else
-        //     {
-        //         var meterBuilder = new MetricsConfiguration(options);
-        //         meterBuilder.Configure(openTelemetryBuilder, configureMeterProvider);
-        //     }
-        // }
-
-        // return services;
+        
+        return observability.Configure(services, observabilityConfigurator);
     }
 }
 
