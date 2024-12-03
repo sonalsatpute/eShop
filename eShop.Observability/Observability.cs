@@ -10,7 +10,7 @@ public interface IObservability
     IServiceCollection Configure(IServiceCollection services, IObservabilityConfigurator configurator);
 }
 
-internal class Observability : IObservability
+public class Observability : IObservability
 {
     private readonly IObservabilityOptions _options;
     private readonly IResourceConfiguration _resource;

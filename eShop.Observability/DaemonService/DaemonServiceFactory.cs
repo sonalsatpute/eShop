@@ -37,8 +37,8 @@ public static class DaemonServiceFactory
             where S : class, IHostedService
         {
             IConfiguration configuration = null!;
-            var startup = startFactory();
-            var builder = new HostBuilder()
+            IDaemonServiceSetup startup = startFactory();
+            IHostBuilder? builder = new HostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.AddJsonFile("appsettings.json", optional: true);

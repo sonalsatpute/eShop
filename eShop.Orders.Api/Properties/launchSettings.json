@@ -1,0 +1,39 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:44786",
+      "sslPort": 44362
+    }
+  },
+  "profiles": {
+    "eShop.Orders.Api": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:7226;http://localhost:5020",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+//        "OTEL_SERVICE_NAME": "MyServiceName",
+//        "OTEL_TRACES_EXPORTER" : "OTLP",
+//        "OTEL_METRICS_EXPORTER": "OTLP",
+//        "OTEL_LOGS_EXPORTER": "OTLP"
+      }
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+////        "OTEL_SERVICE_NAME": "MyServiceName",
+//        "OTEL_TRACES_EXPORTER" : "OTLP",
+//        "OTEL_METRICS_EXPORTER": "OTLP",
+//        "OTEL_LOGS_EXPORTER": "OTLP"
+      }
+    }
+  }
+}

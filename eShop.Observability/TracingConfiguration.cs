@@ -9,22 +9,19 @@ using OpenTelemetry.Trace;
 
 namespace eShop.Observability;
 
-internal interface ITracingConfiguration
+public interface ITracingConfiguration
 {
     void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder>? configuratorConfigureTracerProvider);
     void Configure(ResourceBuilder resource, Action<TracerProviderBuilder>? configuratorConfigureTracerProvider);
 }
 
-internal class TracingConfiguration : ITracingConfiguration
+public class TracingConfiguration : ITracingConfiguration
 {
     private readonly IObservabilityOptions _options;
-    private readonly ICaptureHeader _captureHeader;
 
-    public TracingConfiguration(IObservabilityOptions options,
-        ICaptureHeader captureHeader)
+    public TracingConfiguration(IObservabilityOptions options)
     {
         _options = options;
-        _captureHeader = captureHeader;
     }
     
     public void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder>? configureTracerProvider)
@@ -79,12 +76,12 @@ internal class TracingConfiguration : ITracingConfiguration
                 activity.SetTag(ObservabilityConstants.URL_QUERY, request.RequestUri.Query);
             }
             
-            // _captureHeader.SetTags(activity, request?.Headers!, true);
+            CaptureHeader.SetTags(activity, request?.Headers!, true);
         };
         
         options.EnrichWithHttpResponseMessage = (activity, response) =>
         {
-            // _captureHeader.SetTags(activity, response?.Headers!);
+            CaptureHeader.SetTags(activity, response?.Headers!);
         };
 
         options.FilterHttpRequestMessage = (request) =>
@@ -101,7 +98,7 @@ internal class TracingConfiguration : ITracingConfiguration
         options.EnrichWithHttpRequest = (Action<Activity, HttpRequest>)((activity, request) =>
         {
             if (request.QueryString.HasValue == false) return;
-            _captureHeader.SetTags(activity, request.Headers, true);
+            CaptureHeader.SetTags(activity, request.Headers, true);
                             
             activity.SetTag(ObservabilityConstants.URL_QUERY,  request.QueryString.Value);
 
@@ -113,7 +110,7 @@ internal class TracingConfiguration : ITracingConfiguration
         
         options.EnrichWithHttpResponse = (Action<Activity, HttpResponse>)((activity, response) =>
         {
-            _captureHeader.SetTags(activity, response.Headers);
+            CaptureHeader.SetTags(activity, response.Headers);
         });
     }
 }

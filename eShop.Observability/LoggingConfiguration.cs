@@ -6,7 +6,7 @@ using OpenTelemetry.Resources;
 
 namespace eShop.Observability;
 
-internal interface ILoggingConfiguration
+public interface ILoggingConfiguration
 {
     void Configure(IOpenTelemetryBuilder builder,
     Action<LoggerProviderBuilder>? configureLoggerProvider);
@@ -16,7 +16,7 @@ internal interface ILoggingConfiguration
         Action<LoggerProviderBuilder>? configureLoggerProvider);
 }
 
-class LoggingConfiguration : ILoggingConfiguration
+public class LoggingConfiguration : ILoggingConfiguration
 {
     private readonly IObservabilityOptions _options;
 

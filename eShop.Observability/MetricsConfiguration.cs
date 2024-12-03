@@ -4,13 +4,13 @@ using OpenTelemetry.Resources;
 
 namespace eShop.Observability;
 
-internal interface IMetricsConfiguration
+public interface IMetricsConfiguration
 {
     void Configure(IOpenTelemetryBuilder builder, Action<MeterProviderBuilder>? configureMeterProvider);
     void Configure(ResourceBuilder resource, Action<MeterProviderBuilder>? configureMeterProvider);
 }
 
-internal class MetricsConfiguration : IMetricsConfiguration
+public class MetricsConfiguration : IMetricsConfiguration
 {
     private readonly IObservabilityOptions _options;
     
