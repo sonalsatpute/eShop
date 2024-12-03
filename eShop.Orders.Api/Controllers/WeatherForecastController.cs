@@ -18,7 +18,7 @@ public class WeatherForecastController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
+    [HttpGet(Name = "/GetWeatherForecast")]
     public IEnumerable<WeatherForecast> Get()
     {
         
@@ -33,5 +33,16 @@ public class WeatherForecastController : ControllerBase
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+    }
+
+    [HttpGet("greeting/{name}")]
+    public async Task<string> Greet(string name)
+    {
+        using var client = new HttpClient();
+        client.BaseAddress = new Uri("https://jsonplaceholder.typicode.com/");
+        HttpResponseMessage response = await client.GetAsync("posts/1");
+        response.EnsureSuccessStatusCode();
+        string responseBody = await response.Content.ReadAsStringAsync();
+        return responseBody;
     }
 }

@@ -40,11 +40,17 @@ RUN chmod +x /otel/instrument.sh
 
 ENV OTEL_SERVICE_NAME="eshop-orders-api"
 ENV OTEL_RESOURCE_ATTRIBUTES="deployment.environment=staging,service.version=1.0.0"
-#ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://host.docker.internal:4318"
-ENV OTEL_TRACES_EXPORTER="none"
-ENV OTEL_LOGS_EXPORTER="none"
-ENV OTEL_METRICS_EXPORTER="otlp"
-ENV OTEL_LOG_LEVEL="debug"
+ENV OTEL_EXPORTER_OTLP_ENDPOINT="http://host.docker.internal:4318"
+ENV OTEL_TRACES_EXPORTER="otel"
+ENV OTEL_LOGS_EXPORTER="otel"
+ENV OTEL_METRICS_EXPORTER="otel"
+
+# Disable auto-instrumentation
+ENV OTEL_DOTNET_AUTO_LOGS_ENABLED="false"
+ENV OTEL_DOTNET_AUTO_TRACES_ENABLED="false"
+
+# Enable auto-instrumentation
+ENV OTEL_DOTNET_AUTO_METRICS_ENABLED="true"
 
 ENTRYPOINT ["/bin/bash", "-c", "source /otel/instrument.sh && dotnet eShop.Orders.Api.dll"]
 
@@ -54,3 +60,4 @@ ENTRYPOINT ["/bin/bash", "-c", "source /otel/instrument.sh && dotnet eShop.Order
 
 #RUN:
 # docker run -p 8080:80 -e OTEL_EXPORTER_OTLP_ENDPOINT="http://host.docker.internal:4318" myproject 
+# docker run -p 8080:80 myproject 
