@@ -1,16 +1,19 @@
-namespace eShop.Observability;
+namespace eShop.Observability.Constants;
 
 public static class ObservabilityConstants
 {
+    public const string HOST_NAME = "host.name";
+    public const string SERVICE_NAME = "service.name";
+    public const string SERVICE_VERSION = "service.version";
+    public const string ENVIRONMENT = "environment";
+    public const string SCALE_UNIT_ID = "scale_unit_id";
+    public const string NAMESPACE_NAME = "namespace.name";
+    
     public const string TRACE_PARENT = "traceparent";
     
-    public const string HTTP = "http";
-    public const string REQUEST = "request";
-    public const string RESPONSE = "response";
-    public const string HEADER = "header";
-    public const string IGNORED_HEALTH_ENDPOINT = "/health";
+    public const string HTTP_REQUEST_HEADER = "http.request.header";
+    public const string HTTP_RESPONSE_HEADER = "http.response.header";
     
-    public const string SERVICE_VERSION = "service.version";
     public const string URL_QUERY = "url.query";
     public const string TENANT_ID = "tenant.id";
     public const string SITE_ID = "site.id";
@@ -29,6 +32,8 @@ public static class ObservabilityConstants
     public const string MASTER_CATALOG_ID="master.catalog.id";
     public const string LOCALE_CODE = "locale.code";
     public const string CURRENCY_CODE = "currency.code";
+
+    public const string REFERER = "referer";
     
-    public const string USER_AGENT = "user-agent";
+    public const string IGNORED_HEALTH_ENDPOINT = "/health";
 }

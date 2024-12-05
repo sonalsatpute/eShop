@@ -1,30 +1,31 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
 
-namespace eShop.Observability;
+namespace eShop.Observability.Configurations;
 
 public interface ILoggingConfiguration
 {
     void Configure(IOpenTelemetryBuilder builder,
-    Action<LoggerProviderBuilder>? configureLoggerProvider);
+        Action<LoggerProviderBuilder>? configureLoggerProvider);
     
     IServiceCollection Configure(IServiceCollection services,
         ResourceBuilder resource, 
         Action<LoggerProviderBuilder>? configureLoggerProvider);
 }
 
-public class LoggingConfiguration : ILoggingConfiguration
+public class DefaultLoggingConfiguration : ILoggingConfiguration
 {
     private readonly IObservabilityOptions _options;
 
-    public LoggingConfiguration(IObservabilityOptions options)
+    public DefaultLoggingConfiguration(IObservabilityOptions options)
     {
         _options = options;
     }
-
+    
     public void Configure(IOpenTelemetryBuilder builder,
         Action<LoggerProviderBuilder>? configureLoggerProvider)
     {
@@ -48,7 +49,7 @@ public class LoggingConfiguration : ILoggingConfiguration
         if (!_options.IsLoggingEnabled) return services;
         
         if (configureLoggerProvider != null)
-            throw new NotImplementedException("Custom LoggerProviderBuilder configuration is not supported yet.");
+            throw new NotImplementedException("Custom LoggerProviderBuilder configuration for non web app/api is not supported yet.");
         
         return services.AddLogging(loggingBuilder =>
         {
