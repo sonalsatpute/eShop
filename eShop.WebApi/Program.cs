@@ -16,7 +16,7 @@ builder.Services.AddSwaggerGen();
 
 
 // Add OpenTelemetry services.
-builder.Services.AddObservability(builder.Configuration);
+builder.Services.AddObservability(settings: builder.Configuration, forWebApp: true);
 // builder.Services.AddSingleton<IStartupFilter, ObservabilityStartupFilter>();
 // builder.AddOpenTelemetry();
 

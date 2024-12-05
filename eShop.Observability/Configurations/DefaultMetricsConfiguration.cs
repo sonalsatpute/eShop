@@ -1,8 +1,9 @@
+using System;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 
-namespace eShop.Observability;
+namespace eShop.Observability.Configurations;
 
 public interface IMetricsConfiguration
 {
@@ -10,7 +11,7 @@ public interface IMetricsConfiguration
     void Configure(ResourceBuilder resource, Action<MeterProviderBuilder>? configureMeterProvider);
 }
 
-public class MetricsConfiguration : IMetricsConfiguration
+public class DefaultMetricsConfiguration : IMetricsConfiguration
 {
     private readonly IObservabilityOptions _options;
     
@@ -18,11 +19,11 @@ public class MetricsConfiguration : IMetricsConfiguration
     private const string KESTREL_METER = "Microsoft.AspNetCore.Server.Kestrel";
     private const string MASS_TRANSIT_METER = "MassTransit"; // Out of the box support is available after MassTransit v8+
 
-    public MetricsConfiguration(IObservabilityOptions options)
+    public DefaultMetricsConfiguration(IObservabilityOptions options)
     {
         _options = options;
     }
-
+    
     /// <summary>
     /// Configure Metrics for Web App
     /// </summary>
@@ -32,12 +33,8 @@ public class MetricsConfiguration : IMetricsConfiguration
         Action<MeterProviderBuilder>? configureMeterProvider)
     {
         if (!_options.IsMetricsEnabled) return;
-        
-        if (configureMeterProvider != null)
-            builder.WithMetrics(configureMeterProvider);
-        else
-            builder.WithMetrics(ConfigureMetrics);
-        
+
+        builder.WithMetrics(configureMeterProvider ?? ConfigureMetrics);
     }
 
     /// <summary>
@@ -70,8 +67,13 @@ public class MetricsConfiguration : IMetricsConfiguration
                 .AddMeter(KESTREL_METER); // Full Support in .NET 8 and later
         }
 
-        builder.AddMeter(MASS_TRANSIT_METER);
+        builder.AddMeter(MASS_TRANSIT_METER); // Support for MassTransit v8+
 
+        foreach (string meterName in _options.MeterNames)
+        {
+            builder.AddMeter(meterName);
+        }
+        
         metrics
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
@@ -80,6 +82,6 @@ public class MetricsConfiguration : IMetricsConfiguration
             .AddConsoleExporter() // Add Console exporter for development
             .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
 
-        if (!_options.ForWebApp) metrics.Build();
+        if (_options.ForConsoleApp) metrics.Build();
     }
 }

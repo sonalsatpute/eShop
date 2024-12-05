@@ -7,13 +7,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 public class SubmarineServiceSetup : IDaemonServiceSetup
 {
     public IConfigurationBuilder BuildConfiguration(IConfigurationBuilder configBuilder) => configBuilder;
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration) => 
-        services.AddObservabilityX(configuration, forWebApp: false);
+        services.AddObservability(
+            settings:configuration,
+            // observabilityConfigurator: BuildObservabilityConfigurator(),
+            forWebApp: false
+        );
 
     public void ConfigureLogging(ILoggingBuilder loggingBuilder)
     {
@@ -22,36 +28,40 @@ public class SubmarineServiceSetup : IDaemonServiceSetup
     public void Configure(IHostBuilder builder)
     {
     }
-}
-
-public static class ObservabilityExtensions
-{
-    public static IServiceCollection AddObservabilityX(this IServiceCollection services, IConfiguration configuration, bool forWebApp)
+    
+    public static IObservabilityConfigurator BuildObservabilityConfigurator()
     {
-        IObservabilityOptions options = new ObservabilityOptions(configuration, forWebApp);
-        IResourceConfiguration resourceConfiguration = new ResourceConfiguration(options);
-        ITracingConfiguration tracingConfiguration = new TracingConfiguration(options);
-        IMetricsConfiguration metricsConfiguration = new MetricsConfiguration(options);
-        ILoggingConfiguration loggingConfiguration = new LoggingConfiguration(options);
+        IObservabilityOptions ConfigureOptions(IConfiguration settings) => 
+            new CustomObservabilityOptions(settings: settings, forWebApp: false);
         
-        
-        IObservability observability = new Observability(
-            options,
-            resourceConfiguration,
-            tracingConfiguration,
-            metricsConfiguration,
-            loggingConfiguration
+        void ConfigureTracerProvider(TracerProviderBuilder builder, IObservabilityOptions options)
+        {
+            builder.AddSource(options.ActivitySourceName);
+            builder.AddAspNetCoreInstrumentation();
+            builder.AddHttpClientInstrumentation();
+            builder.AddConsoleExporter(); // Add Console exporter for development
+            builder.AddOtlpExporter(op => op.Endpoint = options.CollectorEndpoint);
+
+            builder.Build(); // Build the TracerProvider (only for console applications)
+        }
+
+        void ConfigureResources(ResourceBuilder builder, IObservabilityOptions options)
+        {
+            builder.AddService(
+                serviceName: options.ServiceName,
+                serviceVersion: options.ServiceVersion,
+                serviceInstanceId: options.HostName
+            );
+
+            builder.Build(); // Build the resource (only for console applications)
+        }
+
+        IObservabilityConfigurator configurator = new ObservabilityConfigurator(
+            configureOptions: ConfigureOptions
+            ,configureResources: ConfigureResources
+            , configureTracer: ConfigureTracerProvider
         );
         
-        services.AddSingleton<IObservabilityOptions>(options);
-        services.AddSingleton<IResourceConfiguration>(resourceConfiguration);
-        services.AddSingleton<ITracingConfiguration>(tracingConfiguration);
-        services.AddSingleton<IMetricsConfiguration>(metricsConfiguration);
-        services.AddSingleton<ILoggingConfiguration>(loggingConfiguration);
-        services.AddSingleton<IObservability>(observability);
-        
-        observability.Configure(services, null!);
-            
-        return services;
+        return configurator;
     }
 }

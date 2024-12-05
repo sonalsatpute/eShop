@@ -27,7 +27,7 @@ public class ProductRepository : IProductRepository
         // Product? product = await _dbContext.Products.FindAsync(productId);
         
         Product product = new Product(productId, $"Product {productId}", (decimal)random.NextDouble());
-        return product!;
+        return product;
     }
 
     public Task CreateProductAsync(Product product)

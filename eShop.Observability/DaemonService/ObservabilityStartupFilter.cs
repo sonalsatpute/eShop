@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace eShop.Observability.Configurations.eShop.Observability.Configurations;
+namespace eShop.Observability.DaemonService;
 
 public class ObservabilityStartupFilter : IStartupFilter, IHostStartupFilter
 {
