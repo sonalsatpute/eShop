@@ -18,9 +18,12 @@ public class WeatherForecastController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    [HttpGet(Name = "GetWeatherForecast?pageSize={pageSize}&pageNumber={pageNumber}")]
+    public IEnumerable<WeatherForecast> Get(string pageSize, string pageIndex)
     {
+        _logger.LogInformation("GetWeatherForecast called with pageSize: {PageSize} and pageIndex: {PageIndex}", 
+            pageSize, pageIndex);
+        
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

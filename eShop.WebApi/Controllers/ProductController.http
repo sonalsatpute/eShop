@@ -25,3 +25,6 @@ GET {{eshop_api_host_address}}/Product/
 Accept: application/json
 
 ###
+
+
+GET {{eshop_api_host_address}}/WeatherForecast?pageSize=5&pageIndex=1
