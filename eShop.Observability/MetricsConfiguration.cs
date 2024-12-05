@@ -73,6 +73,7 @@ public class MetricsConfiguration : IMetricsConfiguration
         builder.AddMeter(MASS_TRANSIT_METER);
 
         metrics
+            .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
             .AddProcessInstrumentation()
             .AddRuntimeInstrumentation()

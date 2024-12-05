@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution-items", "solution-
 		grafana-datasources.yml = grafana-datasources.yml
 		prometheus.yml = prometheus.yml
 		otel-collector-config.yml = otel-collector-config.yml
+		start.sh = start.sh
+		otel-start.sh = otel-start.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B2790C28-1709-419A-8436-CF0F4AE1E7C5}"
