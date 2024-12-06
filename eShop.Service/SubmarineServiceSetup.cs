@@ -15,9 +15,11 @@ public class SubmarineServiceSetup : IDaemonServiceSetup
     public IConfigurationBuilder BuildConfiguration(IConfigurationBuilder configBuilder) => configBuilder;
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration) => 
-        services.AddObservability(
+        services
+            .AddHttpClient()
+            .AddObservability(
             settings:configuration,
-            // observabilityConfigurator: BuildObservabilityConfigurator(),
+            observabilityConfigurator: BuildObservabilityConfigurator(),
             forWebApp: false
         );
 

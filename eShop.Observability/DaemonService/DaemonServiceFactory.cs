@@ -71,9 +71,9 @@ public static class DaemonServiceFactory
             startup.Configure(builder);
 
             IHost host = builder.Build();
-            // Mozu.Core.Logging.LoggingService.LoggerFactory = host.Services.GetService<ILoggerFactory>();
-            // Mozu.Core.Settings.MozuConfigurationManager.Settings = host.Services.GetService<ISettings>();
-            // Mozu.Core.Localization.MozuStringLocalizer.InvariantCulture = host.Services.GetService<IMozuStringLocalizerFactory>().Create(null);
+            // eShop.Logging.LoggingService.LoggerFactory = host.Services.GetService<ILoggerFactory>();
+            // eShop.Settings.MozuConfigurationManager.Settings = host.Services.GetService<ISettings>();
+            // eShop.Localization.MozuStringLocalizer.InvariantCulture = host.Services.GetService<IMozuStringLocalizerFactory>().Create(null);
             //
             IEnumerable<IHostStartupFilter> hostStartupFilters = host.Services
                 .GetService<IEnumerable<IStartupFilter>>()!

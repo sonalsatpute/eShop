@@ -10,12 +10,12 @@ public interface IServiceInfoProvider
 
 public class ServiceInfoProvider : IServiceInfoProvider
 {
-    const string SERVICE_NAME = "SERVICE_NAME";
+    const string SERVICE_NAME = "KUBE_SERVICE_NAME";
     const string DELIMITER = "-";
 
     public string GetServiceName(IConfiguration settings)
     {
-        string? value = settings.GetValue(SERVICE_NAME, string.Empty);
+        string value = settings.GetValue(SERVICE_NAME, string.Empty)!;
         if (!string.IsNullOrWhiteSpace(value)) return value;
 
         // Machine Name Format: <service-name>-<replica set id>-<pod id>

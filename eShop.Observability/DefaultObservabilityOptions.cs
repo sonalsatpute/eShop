@@ -28,7 +28,8 @@ public interface IObservabilityOptions
     bool IsObservabilityEnabled { get; }
     bool ForWebApp { get; }
     bool ForConsoleApp => !ForWebApp;
-    
+    bool ExportToConsole { get; }
+
     IEnumerable<string> MeterNames { get; }
 }
 
@@ -38,6 +39,7 @@ public class DefaultObservabilityOptions : IObservabilityOptions
     const string OPEN_TELEMETRY_TRACING_ENABLED = "open_telemetry_tracing_enabled";
     const string OPEN_TELEMETRY_METRICS_ENABLED = "open_telemetry_metrics_enabled";
     const string OPEN_TELEMETRY_LOGGING_ENABLED = "open_telemetry_logging_enabled";
+    const string OPEN_TELEMETRY_CONSOLE_EXPORTER_ENABLED = "open_telemetry_console_exporter_enabled";
     
     const string ENVIRONMENT = "Environment";
     const string SCALE_UNIT_ID = "ScaleUnitId";
@@ -56,18 +58,20 @@ public class DefaultObservabilityOptions : IObservabilityOptions
         CurrentActivitySource = new ActivitySource(ServiceName, ServiceVersion);
         
         Environment = settings.GetValue(ENVIRONMENT, string.Empty)!;
-        ScaleUnitId =settings.GetValue(SCALE_UNIT_ID, string.Empty)!;
+        ScaleUnitId = settings.GetValue(SCALE_UNIT_ID, string.Empty)!;
         
         IsTracingEnabled = settings.GetValue(OPEN_TELEMETRY_TRACING_ENABLED, false);
         IsMetricsEnabled = settings.GetValue(OPEN_TELEMETRY_METRICS_ENABLED, false);
         IsLoggingEnabled = settings.GetValue(OPEN_TELEMETRY_LOGGING_ENABLED, false);
         
-        string url = settings.GetValue<string>(OPEN_TELEMETRY_COLLECTOR_URL, "http://localhost:4317")!;
+        ExportToConsole = settings.GetValue(OPEN_TELEMETRY_CONSOLE_EXPORTER_ENABLED, false);
+        
+        string url = settings.GetValue(OPEN_TELEMETRY_COLLECTOR_URL, "http://localhost:4317")!;
         //fault if enabled but no url
         CollectorEndpoint = new Uri(url);
     }
 
-
+    public bool ExportToConsole { get; }
     public bool ForWebApp { get; }
     public IEnumerable<string> MeterNames => new[]
     {

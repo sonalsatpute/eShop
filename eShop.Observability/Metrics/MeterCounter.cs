@@ -14,6 +14,6 @@ public class MeterCounter
         _counter = meter.CreateCounter<long>(meterName);
     }
 
-    public void Increment(ReadOnlySpan<KeyValuePair<string, object?>> tags, long count = 1) => 
+    public void Increment(ReadOnlySpan<KeyValuePair<string, object>> tags, long count = 1) => 
         _counter.Add(count, tags);
 }

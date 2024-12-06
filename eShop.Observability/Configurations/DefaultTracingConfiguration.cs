@@ -9,13 +9,13 @@ using OpenTelemetry.Trace;
 
 namespace eShop.Observability.Configurations;
 
-public interface ITracingConfiguration
+internal interface ITracingConfiguration
 {
-    void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder, IObservabilityOptions>? configureTracer);
-    void Configure(ResourceBuilder resource, Action<TracerProviderBuilder, IObservabilityOptions>? configureTracer);
+    void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder, IObservabilityOptions> configureTracer);
+    void Configure(ResourceBuilder resource, Action<TracerProviderBuilder, IObservabilityOptions> configureTracer);
 }
 
-public class DefaultTracingConfiguration : ITracingConfiguration
+internal class DefaultTracingConfiguration : ITracingConfiguration
 {
     private readonly IObservabilityOptions _options;
 
@@ -24,7 +24,7 @@ public class DefaultTracingConfiguration : ITracingConfiguration
         _options = options;
     }
     
-    public void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder, IObservabilityOptions>? configureTracer)
+    public void Configure(IOpenTelemetryBuilder builder, Action<TracerProviderBuilder, IObservabilityOptions> configureTracer)
     {
         if (!_options.IsTracingEnabled) return;
         
@@ -34,7 +34,7 @@ public class DefaultTracingConfiguration : ITracingConfiguration
             builder.WithTracing(ConfigureTracing);
     }
 
-    public void Configure(ResourceBuilder resource, Action<TracerProviderBuilder, IObservabilityOptions>? configureTracer)
+    public void Configure(ResourceBuilder resource, Action<TracerProviderBuilder, IObservabilityOptions> configureTracer)
     {
         if (!_options.IsTracingEnabled) return;
 
@@ -57,8 +57,9 @@ public class DefaultTracingConfiguration : ITracingConfiguration
             .AddAWSInstrumentation()
             .AddRedisInstrumentation()
             .AddSource(_options.ActivitySourceName)
-            .AddConsoleExporter() // Add Console exporter for development
             .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
+        
+        if (_options.ExportToConsole) builder.AddConsoleExporter();
         
         if (_options.ForConsoleApp) builder.Build();
     }

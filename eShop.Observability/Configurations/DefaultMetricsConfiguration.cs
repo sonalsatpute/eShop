@@ -5,13 +5,13 @@ using OpenTelemetry.Resources;
 
 namespace eShop.Observability.Configurations;
 
-public interface IMetricsConfiguration
+internal interface IMetricsConfiguration
 {
-    void Configure(IOpenTelemetryBuilder builder, Action<MeterProviderBuilder>? configureMeterProvider);
-    void Configure(ResourceBuilder resource, Action<MeterProviderBuilder>? configureMeterProvider);
+    void Configure(IOpenTelemetryBuilder builder, Action<MeterProviderBuilder> configureMeterProvider);
+    void Configure(ResourceBuilder resource, Action<MeterProviderBuilder> configureMeterProvider);
 }
 
-public class DefaultMetricsConfiguration : IMetricsConfiguration
+internal class DefaultMetricsConfiguration : IMetricsConfiguration
 {
     private readonly IObservabilityOptions _options;
     
@@ -30,7 +30,7 @@ public class DefaultMetricsConfiguration : IMetricsConfiguration
     /// <param name="builder"></param>
     /// <param name="configureMeterProvider"></param>
     public void Configure(IOpenTelemetryBuilder builder,
-        Action<MeterProviderBuilder>? configureMeterProvider)
+        Action<MeterProviderBuilder> configureMeterProvider)
     {
         if (!_options.IsMetricsEnabled) return;
 
@@ -43,28 +43,29 @@ public class DefaultMetricsConfiguration : IMetricsConfiguration
     /// <param name="resource"></param>
     /// <param name="configureMeterProvider"></param>
     public void Configure(ResourceBuilder resource,
-        Action<MeterProviderBuilder>? configureMeterProvider)
+        Action<MeterProviderBuilder> configureMeterProvider)
     {
         if (!_options.IsMetricsEnabled) return;
         
-        MeterProviderBuilder metrics = Sdk.CreateMeterProviderBuilder();
-        metrics.SetResourceBuilder(resource);
+        MeterProviderBuilder builder = Sdk.CreateMeterProviderBuilder();
+        builder.SetResourceBuilder(resource);
         
         if (configureMeterProvider != null)
-            configureMeterProvider.Invoke(metrics);
+            configureMeterProvider.Invoke(builder);
         else
-            ConfigureMetrics(metrics);
+            ConfigureMetrics(builder);
     }
 
-    private void ConfigureMetrics(MeterProviderBuilder metrics)
+    private void ConfigureMetrics(MeterProviderBuilder builder)
     {
-        MeterProviderBuilder builder = metrics.AddAspNetCoreInstrumentation();
         if (_options.ForWebApp)
         {
             // Metrics provides
             builder
                 .AddMeter(HOSTING_METER)
                 .AddMeter(KESTREL_METER); // Full Support in .NET 8 and later
+
+            builder.AddAspNetCoreInstrumentation();
         }
 
         builder.AddMeter(MASS_TRANSIT_METER); // Support for MassTransit v8+
@@ -73,15 +74,15 @@ public class DefaultMetricsConfiguration : IMetricsConfiguration
         {
             builder.AddMeter(meterName);
         }
-        
-        metrics
-            .AddAspNetCoreInstrumentation()
+
+        builder
             .AddHttpClientInstrumentation()
             .AddProcessInstrumentation()
             .AddRuntimeInstrumentation()
-            .AddConsoleExporter() // Add Console exporter for development
             .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
+        
+        if (_options.ExportToConsole) builder.AddConsoleExporter();
 
-        if (_options.ForConsoleApp) metrics.Build();
+        if (_options.ForConsoleApp) builder.Build();
     }
 }

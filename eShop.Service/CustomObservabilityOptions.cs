@@ -13,7 +13,7 @@ public class CustomObservabilityOptions : IObservabilityOptions
     const string OPEN_TELEMETRY_TRACING_ENABLED = "open_telemetry_tracing_enabled";
     const string OPEN_TELEMETRY_METRICS_ENABLED = "open_telemetry_metrics_enabled";
     const string OPEN_TELEMETRY_LOGGING_ENABLED = "open_telemetry_logging_enabled";
-    
+    const string OPEN_TELEMETRY_CONSOLE_EXPORTER_ENABLED = "open_telemetry_console_exporter_enabled";
     public CustomObservabilityOptions(IConfiguration settings, bool forWebApp)
     {
         ForWebApp = forWebApp;
@@ -28,13 +28,18 @@ public class CustomObservabilityOptions : IObservabilityOptions
         IsTracingEnabled = settings.GetValue(OPEN_TELEMETRY_TRACING_ENABLED, false);
         IsMetricsEnabled = settings.GetValue(OPEN_TELEMETRY_METRICS_ENABLED, false);
         IsLoggingEnabled = settings.GetValue(OPEN_TELEMETRY_LOGGING_ENABLED, false);
+        ExportToConsole = settings.GetValue(OPEN_TELEMETRY_CONSOLE_EXPORTER_ENABLED, false);    
         
         string url = settings.GetValue<string>(OPEN_TELEMETRY_COLLECTOR_URL, "http://localhost:4317")!;
         //todo: fault if enabled but no url
         CollectorEndpoint = new Uri(url);
     }
+
     
+
     public bool ForWebApp { get; }
+    public bool ExportToConsole { get; }
+
     public IEnumerable<string> MeterNames => new[]
     {
         MetricConstants.ORDERS_CREATED,

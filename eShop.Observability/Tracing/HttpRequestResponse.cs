@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -35,7 +39,6 @@ public static class HttpRequestResponse
         {
             if (request?.RequestUri?.Query.Length > 0)
             {
-                // activity.SetTag(ObservabilityConstants.URL_QUERY, request.RequestUri.Query);
                 Dictionary<string, string> queryParams = request.RequestUri.Query
                     .TrimStart('?')
                     .Split('&', StringSplitOptions.RemoveEmptyEntries)
@@ -77,8 +80,6 @@ public static class HttpRequestResponse
 
             if (request.QueryString.HasValue)
             {
-                // activity.SetTag(ObservabilityConstants.URL_QUERY, request.QueryString.Value);
-
                 foreach (KeyValuePair<string, StringValues> param in request.Query)
                 {
                     activity.SetTag($"{ObservabilityConstants.URL_QUERY}.{param.Key}", param.Value);

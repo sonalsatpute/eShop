@@ -5,12 +5,12 @@ using OpenTelemetry.Resources;
 
 namespace eShop.Observability;
 
-public interface IObservability
+internal interface IObservability
 {
-    IServiceCollection Configure(IServiceCollection services, IObservabilityConfigurator? configurator);
+    IServiceCollection Configure(IServiceCollection services, IObservabilityConfigurator configurator);
 }
 
-public class OtlpObservability : IObservability
+internal class OtlpObservability : IObservability
 {
     private readonly IObservabilityOptions _options;
     private readonly IResourceConfiguration _resource;
@@ -34,7 +34,7 @@ public class OtlpObservability : IObservability
     }
 
     public IServiceCollection Configure(IServiceCollection services,
-        IObservabilityConfigurator? observabilityConfigurator)
+        IObservabilityConfigurator observabilityConfigurator)
     {
         services.AddSingleton<IApplicationMetric, ApplicationMetric>();
         
@@ -46,7 +46,7 @@ public class OtlpObservability : IObservability
     }
     
     private IServiceCollection ConfigureConsoleApp(IServiceCollection services,
-        IObservabilityConfigurator? configurator)
+        IObservabilityConfigurator configurator)
     {
         ResourceBuilder resource = ResourceBuilder.CreateDefault();
 
@@ -61,7 +61,7 @@ public class OtlpObservability : IObservability
     }
 
     private IServiceCollection ConfigureWebApp(IServiceCollection services,
-        IObservabilityConfigurator? configurator)
+        IObservabilityConfigurator configurator)
     {
         OpenTelemetryBuilder builder = services.AddOpenTelemetry();
         builder.ConfigureResource(resource => _resource.Configure(resource));

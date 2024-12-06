@@ -2,12 +2,12 @@ using OpenTelemetry.Resources;
 
 namespace eShop.Observability.Configurations;
 
-public interface IResourceConfiguration
+internal interface IResourceConfiguration
 {
     void Configure(ResourceBuilder resource, bool isConsoleApp = false);
 }
 
-public class DefaultResourceConfiguration : IResourceConfiguration
+internal class DefaultResourceConfiguration : IResourceConfiguration
 {
     private readonly IObservabilityOptions _options;
 

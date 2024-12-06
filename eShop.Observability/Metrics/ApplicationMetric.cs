@@ -24,11 +24,11 @@ public class ApplicationMetric : IApplicationMetric
     private readonly MeterCounter _paymentCaptured = new(MetricConstants.PAYMENT_CAPTURED);
     private readonly MeterCounter _paymentRefunded = new(MetricConstants.PAYMENT_REFUNDED);
 
-    private readonly List<KeyValuePair<string, object?>> _environmentTags;
+    private readonly List<KeyValuePair<string, object>> _environmentTags;
     
     public ApplicationMetric(IObservabilityOptions options)
     {
-        _environmentTags = new List<KeyValuePair<string, object?>>
+        _environmentTags = new List<KeyValuePair<string, object>>
         {
             new(ObservabilityConstants.SERVICE_NAME, options.ServiceName),
             new(ObservabilityConstants.SERVICE_VERSION, options.ServiceVersion),
@@ -69,9 +69,9 @@ public class ApplicationMetric : IApplicationMetric
         _paymentRefunded.Increment(CreateTags(tenantId, siteId), count);
     }
     
-    private ReadOnlySpan<KeyValuePair<string, object?>> CreateTags(string? tenantId, string? siteId)
+    private ReadOnlySpan<KeyValuePair<string, object>> CreateTags(string tenantId, string siteId)
     {
-        List<KeyValuePair<string, object?>> pairs = new()
+        List<KeyValuePair<string, object>> pairs = new()
         {
             new(ObservabilityConstants.TENANT_ID, tenantId),
             new(ObservabilityConstants.SITE_ID, siteId)

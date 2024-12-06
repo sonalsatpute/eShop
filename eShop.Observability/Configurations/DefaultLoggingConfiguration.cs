@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
@@ -7,17 +6,17 @@ using OpenTelemetry.Resources;
 
 namespace eShop.Observability.Configurations;
 
-public interface ILoggingConfiguration
+internal interface ILoggingConfiguration
 {
     void Configure(IOpenTelemetryBuilder builder,
-        Action<LoggerProviderBuilder>? configureLoggerProvider);
+        Action<LoggerProviderBuilder> configureLoggerProvider);
     
     IServiceCollection Configure(IServiceCollection services,
         ResourceBuilder resource, 
-        Action<LoggerProviderBuilder>? configureLoggerProvider);
+        Action<LoggerProviderBuilder> configureLoggerProvider);
 }
 
-public class DefaultLoggingConfiguration : ILoggingConfiguration
+internal class DefaultLoggingConfiguration : ILoggingConfiguration
 {
     private readonly IObservabilityOptions _options;
 
@@ -27,7 +26,7 @@ public class DefaultLoggingConfiguration : ILoggingConfiguration
     }
     
     public void Configure(IOpenTelemetryBuilder builder,
-        Action<LoggerProviderBuilder>? configureLoggerProvider)
+        Action<LoggerProviderBuilder> configureLoggerProvider)
     {
         if (!_options.IsLoggingEnabled) return;
 
@@ -36,15 +35,15 @@ public class DefaultLoggingConfiguration : ILoggingConfiguration
         else
             builder.WithLogging(logging =>
             {
-                logging
-                    .AddConsoleExporter() // Add Console exporter for development
-                    .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
+                logging.AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
+                
+                if (_options.ExportToConsole) logging.AddConsoleExporter();
             });
     }
 
     public IServiceCollection Configure(IServiceCollection services,
         ResourceBuilder resource, 
-        Action<LoggerProviderBuilder>? configureLoggerProvider)
+        Action<LoggerProviderBuilder> configureLoggerProvider)
     {
         if (!_options.IsLoggingEnabled) return services;
         
@@ -57,8 +56,9 @@ public class DefaultLoggingConfiguration : ILoggingConfiguration
             {
                 options.SetResourceBuilder(resource);
                 options.IncludeScopes = true;
-                options.AddConsoleExporter(); // Add Console exporter for development
                 options.AddOtlpExporter(otlpOptions => otlpOptions.Endpoint = _options.CollectorEndpoint);
+                
+                if (_options.ExportToConsole) options.AddConsoleExporter();
             });
         });
     }
