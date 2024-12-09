@@ -16,6 +16,7 @@ public interface IApplicationMetric
 
 public class ApplicationMetric : IApplicationMetric
 {
+    private readonly IObservabilityOptions _options;
     private readonly MeterCounter _ordersCreated = new(MetricConstants.ORDERS_CREATED);
     private readonly MeterCounter _ordersSubmitted = new(MetricConstants.ORDERS_SUBMITTED);
     private readonly MeterCounter _ordersCancelled = new(MetricConstants.ORDERS_CANCELLED);
@@ -24,19 +25,10 @@ public class ApplicationMetric : IApplicationMetric
     private readonly MeterCounter _paymentCaptured = new(MetricConstants.PAYMENT_CAPTURED);
     private readonly MeterCounter _paymentRefunded = new(MetricConstants.PAYMENT_REFUNDED);
 
-    private readonly List<KeyValuePair<string, object>> _environmentTags;
     
     public ApplicationMetric(IObservabilityOptions options)
     {
-        _environmentTags = new List<KeyValuePair<string, object>>
-        {
-            new(ObservabilityConstants.SERVICE_NAME, options.ServiceName),
-            new(ObservabilityConstants.SERVICE_VERSION, options.ServiceVersion),
-            new(ObservabilityConstants.HOST_NAME, options.HostName),
-            new(ObservabilityConstants.ENVIRONMENT, options.Environment),
-            new(ObservabilityConstants.SCALE_UNIT_ID, options.ScaleUnitId),
-            new(ObservabilityConstants.NAMESPACE_NAME, $"{options.Environment}-{options.ScaleUnitId}")
-        };
+        _options = options;
     }
     
     public void OrderCreated(string tenantId, string siteId, long count = 1)
@@ -76,7 +68,7 @@ public class ApplicationMetric : IApplicationMetric
             new(ObservabilityConstants.TENANT_ID, tenantId),
             new(ObservabilityConstants.SITE_ID, siteId)
         };
-        pairs.AddRange(_environmentTags);
+        pairs.AddRange(_options.EnvironmentTags);
         return pairs.ToArray();
     }
 }

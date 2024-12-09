@@ -1,4 +1,5 @@
 using eShop.Observability.Configurations;
+using eShop.Observability.Middlewares;
 using eShop.WebApi.Database;
 using eShop.WebApi.Domain;
 
@@ -30,6 +31,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<HostingMetricsMiddlewares>();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

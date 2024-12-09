@@ -1,4 +1,4 @@
-using System;
+using eShop.Observability.Metrics;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -62,10 +62,10 @@ internal class DefaultMetricsConfiguration : IMetricsConfiguration
         {
             // Metrics provides
             builder
-                .AddMeter(HOSTING_METER)
+                .AddMeter(HostingMetrics.MeterName) // Custom Meter for Hosting Metrics as full support is available in .NET 8 and later
                 .AddMeter(KESTREL_METER); // Full Support in .NET 8 and later
 
-            builder.AddAspNetCoreInstrumentation();
+            // builder.AddAspNetCoreInstrumentation(); 
         }
 
         builder.AddMeter(MASS_TRANSIT_METER); // Support for MassTransit v8+
@@ -76,9 +76,9 @@ internal class DefaultMetricsConfiguration : IMetricsConfiguration
         }
 
         builder
-            .AddHttpClientInstrumentation()
-            .AddProcessInstrumentation()
-            .AddRuntimeInstrumentation()
+            // .AddHttpClientInstrumentation()
+            // .AddProcessInstrumentation()
+            // .AddRuntimeInstrumentation()
             .AddOtlpExporter(options => options.Endpoint = _options.CollectorEndpoint);
         
         if (_options.ExportToConsole) builder.AddConsoleExporter();

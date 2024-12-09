@@ -31,6 +31,8 @@ public interface IObservabilityOptions
     bool ExportToConsole { get; }
 
     IEnumerable<string> MeterNames { get; }
+
+    TagList EnvironmentTags { get; }
 }
 
 public class DefaultObservabilityOptions : IObservabilityOptions
@@ -43,7 +45,7 @@ public class DefaultObservabilityOptions : IObservabilityOptions
     
     const string ENVIRONMENT = "Environment";
     const string SCALE_UNIT_ID = "ScaleUnitId";
-    
+
     public DefaultObservabilityOptions(
         IConfiguration settings, 
         IServiceInfoProvider serviceInfoProvider,
@@ -69,10 +71,23 @@ public class DefaultObservabilityOptions : IObservabilityOptions
         string url = settings.GetValue(OPEN_TELEMETRY_COLLECTOR_URL, "http://localhost:4317")!;
         //fault if enabled but no url
         CollectorEndpoint = new Uri(url);
+        
+        EnvironmentTags = new()
+        {
+            { ObservabilityConstants.ENVIRONMENT, Environment },
+            { ObservabilityConstants.SERVICE_NAME, ServiceName },
+            { ObservabilityConstants.SERVICE_VERSION, ServiceVersion },
+            { ObservabilityConstants.HOST_NAME, HostName },
+            { ObservabilityConstants.SCALE_UNIT_ID, ScaleUnitId },
+            { ObservabilityConstants.NAMESPACE_NAME, $"{Environment}-{ScaleUnitId}" }
+        };
     }
 
     public bool ExportToConsole { get; }
     public bool ForWebApp { get; }
+
+    public TagList EnvironmentTags { get; }
+    
     public IEnumerable<string> MeterNames => new[]
     {
         MetricConstants.ORDERS_CREATED,

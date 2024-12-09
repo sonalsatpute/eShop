@@ -33,6 +33,12 @@ public class CustomObservabilityOptions : IObservabilityOptions
         string url = settings.GetValue<string>(OPEN_TELEMETRY_COLLECTOR_URL, "http://localhost:4317")!;
         //todo: fault if enabled but no url
         CollectorEndpoint = new Uri(url);
+        
+        EnvironmentTags = new TagList
+        {
+            { "environment", Environment },
+            { "scale_unit_id", ScaleUnitId }
+        };
     }
 
     
@@ -50,7 +56,9 @@ public class CustomObservabilityOptions : IObservabilityOptions
         MetricConstants.PAYMENT_CAPTURED,
         MetricConstants.PAYMENT_REFUNDED
     };
-    
+
+    public TagList EnvironmentTags { get; }
+
     public ActivitySource CurrentActivitySource { get;}
     public string Environment { get; }
     public string ScaleUnitId { get; }

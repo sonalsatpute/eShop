@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using eShop.Observability.Metrics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -39,6 +40,7 @@ public static class ServiceConfigurations
         );
 
         services.TryAddSingleton(options);
+        services.TryAddSingleton<HostingMetrics>();
         return observability.Configure(services, observabilityConfigurator);
     }
 }
